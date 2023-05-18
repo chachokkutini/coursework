@@ -2,6 +2,7 @@ import express, { json } from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import cors from 'cors';
 
 import { validationResult } from 'express-validator'
 import { registrationValidation } from './validation/registration.js';
@@ -20,9 +21,9 @@ mongoose
 
 const app = express();
 
-
-
 app.use(express.json());
+
+app.use(cors());
 
 app.post('/auth/registration', registrationValidation, async (req, res) => {
     try {
@@ -167,6 +168,33 @@ app.get('/posts', async (req, res) => {
     try {
         const posts = await postSchema.find().populate('user').exec();
         res.json(posts)
+    }
+    catch (err) {
+        res.status(500).json({
+            succes: false,
+            message: 'Упс... Что-то пошло не так!'
+        })
+    }
+})
+//get all tags
+app.get('/posts/tags', async (req, res) => {
+    try {
+        const posts = await postSchema.find().limit(3).exec();
+        const tags = posts.map(obj => obj.tags).flat().slice(0, 3)
+        res.json(tags)
+    }
+    catch (err) {
+        res.status(500).json({
+            succes: false,
+            message: 'Упс... Что-то пошло не так!'
+        })
+    }
+})
+app.get('/tags', async (req, res) => {
+    try {
+        const posts = await postSchema.find().limit(3).exec();
+        const tags = posts.map(obj => obj.tags).flat().slice(0, 3)
+        res.json(tags)
     }
     catch (err) {
         res.status(500).json({
